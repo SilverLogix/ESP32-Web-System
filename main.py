@@ -3,6 +3,7 @@
 import gc
 import socket
 import utime
+# noinspection PyUnresolvedReferences
 from machine import Pin
 
 # Custom imports
@@ -58,6 +59,7 @@ oled.fill(oled.WHITE)
 f1 = 'off'
 ftp_check = 0
 led_check = 1
+
 
 @micropython.native
 def web_page():

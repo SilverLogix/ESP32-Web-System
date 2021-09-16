@@ -33,6 +33,7 @@ def raw_temp():
 
 
 def showVoltage():
+    # noinspection PyUnresolvedReferences
     from machine import ADC, Pin
 
     adc = ADC(Pin(32))
@@ -47,6 +48,7 @@ def showVoltage():
     ddd = voltage
     return ddd
 
+
 def pprint():
     print("")
     print("-------------------")
@@ -56,6 +58,7 @@ def pprint():
     showVoltage()
     print("--------------------")
     print("")
+
 
 '''
 N = 200_000
