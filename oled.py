@@ -1,6 +1,9 @@
-# ----------#
+# ---------- #
+
+# noinspection PyUnresolvedReferences
 from micropython import const
 import st7789 as st
+# noinspection PyUnresolvedReferences
 from machine import Pin, SPI
 
 
@@ -199,3 +202,25 @@ def micrologo(col=BLACK):
     tft.fill(col)
     tft.jpg('logo.jpg', 0, 0, 1)
     tft.text(font, " MICROPYTHON ", int(tft.width() / 2 - 105), int(tft.height() - 18), WHITE, 0)
+
+
+def backlight(swt):
+    global tft
+    if swt == 1:
+        tft = st.ST7789(
+            SPI(1, baudrate=30000000, sck=Pin(18), mosi=Pin(19)),
+            135, 240,
+            reset=Pin(23, Pin.OUT),
+            cs=Pin(5, Pin.OUT),
+            dc=Pin(16, Pin.OUT),
+            backlight=Pin(4, Pin.OUT),
+            rotation=3)
+    if swt == 0:
+        tft = st.ST7789(
+            SPI(1, baudrate=30000000, sck=Pin(18), mosi=Pin(19)),
+            135, 240,
+            reset=Pin(23, Pin.OUT),
+            cs=Pin(5, Pin.OUT),
+            dc=Pin(16, Pin.OUT),
+            backlight=Pin(4, Pin.IN),
+            rotation=3)
