@@ -1,5 +1,5 @@
 
-# ---------- Connect to a router ---------- #
+# ----------- Connect to a router ----------- #
 @micropython.native
 def STA(ssid: str, passw: str):
     import network

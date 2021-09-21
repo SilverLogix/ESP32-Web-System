@@ -36,11 +36,16 @@ gc.collect()
 # machine.deepsleep(ms)
 
 
+async def sleep_7sec():
+    while True:
+        print('sleep 7 seconds')
+        await uasyncio.sleep(7)
+
+
+
 # ------------------------------------- #
 
-
 #             Nothing here              #
-
 
 # ------------------------------------- #
 
@@ -199,5 +204,6 @@ async def web_runner():
 _loop = uasyncio.get_event_loop()
 
 _loop.create_task(web_runner())
+_loop.create_task(sleep_7sec())
 
 _loop.run_forever()

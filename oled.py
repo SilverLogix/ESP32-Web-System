@@ -1,4 +1,4 @@
-# ---------- #
+# ----------- #
 
 # noinspection PyUnresolvedReferences
 from micropython import const
