@@ -36,7 +36,7 @@ def SSSTA(ssid: str, passw: str, static: str, routerip: str):
 
 # --------- Create a Hotspot ---------- #
 @micropython.native
-def AP(ssid: str, maxc: int, pswd: int):
+def AP(ssid: str, maxc: int, pswd: str):
     import network
 
     ap = network.WLAN(network.AP_IF)

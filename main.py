@@ -5,10 +5,11 @@ import socket
 import utime
 # noinspection PyUnresolvedReferences
 from machine import Pin
+import uasyncio
 
 # Custom imports
 import oled
-from board import STA
+from board import AP
 import debug
 import ftptiny
 
@@ -45,12 +46,13 @@ gc.collect()
 
 
 # ---------- Boot up ---------- #
-ifinfo = STA("ROUTER", "PASS")
+oled.fill(oled.YELLOW)
+oled.text_long("", "", "", "", "", "", " Connecting to", " WiFi", oled.BLACK, oled.YELLOW)
+# ifinfo = STA("ROUTER", "PASS")
+ifinfo = AP("TTGO", 2, "pass")
 print("")
 
 oled.fill(oled.RED)
-utime.sleep_ms(50)
-oled.fill(oled.YELLOW)
 utime.sleep_ms(50)
 oled.fill(oled.GREEN)
 utime.sleep_ms(50)
@@ -61,8 +63,8 @@ ftp_check = 0
 led_check = 1
 
 
-@micropython.native
 def web_page():
+    global led_check, ftp_check
 
     if led_check == 1:
         gpio_state = "ON"
@@ -142,49 +144,60 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', 80))
 s.listen(5)
 
+
 # --------- RUN --------- #
-while True:
-    gc.collect()
-    conn, addr = s.accept()
-    print('Got a connection from %s' % str(addr))
-    request = conn.recv(1024)
-    request = str(request)
-    print('Content = %s' % request)
+async def web_runner():
+    global led_check, ftp_check
 
-    led_on = request.find('/?led=on')
-    led_off = request.find('/?led=off')
+    while True:
+        conn, addr = s.accept()
+        print('Got a connection from %s' % str(addr))
+        request = conn.recv(1024)
+        request = str(request)
+        print('Content = %s' % request)
 
-    ftp_on = request.find('/?ftp=on')
+        led_on = request.find('/?led=on')
+        led_off = request.find('/?led=off')
 
-    reset = request.find('/?reset')
+        ftp_on = request.find('/?ftp=on')
 
-    # text
-    if led_on == 6:
-        print('LED ON')
-        led_check = 1
-        oled.backlight(1)
+        reset = request.find('/?reset')
 
-    if led_off == 6:
-        print('LED OFF')
-        led_check = 0
-        oled.backlight(0)
+        # text
+        if led_on == 6:
+            print('LED ON')
+            led_check = 1
+            oled.backlight(1)
 
-    if ftp_on == 6:
-        print('FTP ON')
-        ftp_check = 1
-        ftp = ftptiny.FtpTiny()  # create one
-        ftp.start()  # start an ftp thread
+        if led_off == 6:
+            print('LED OFF')
+            led_check = 0
+            oled.backlight(0)
 
-    if reset == 6:
-        machine.deepsleep(500)
+        if ftp_on == 6:
+            print('FTP ON')
+            ftp_check = 1
+            ftp = ftptiny.FtpTiny()  # create one
+            ftp.start()  # start an ftp thread
 
-    response = web_page()
-    # noinspection PyTypeChecker
-    conn.send('HTTP/1.1 200 OK\n')
-    # noinspection PyTypeChecker
-    conn.send('Content-Type: text/html\n')
-    # noinspection PyTypeChecker
-    conn.send('Connection: close\n\n')
-    # noinspection PyTypeChecker
-    conn.sendall(response)
-    conn.close()
+        if reset == 6:
+            machine.deepsleep(500)
+
+        response = web_page()
+        # noinspection PyTypeChecker
+        conn.send('HTTP/1.1 200 OK\n')
+        # noinspection PyTypeChecker
+        conn.send('Content-Type: text/html\n')
+        # noinspection PyTypeChecker
+        conn.send('Connection: close\n\n')
+        # noinspection PyTypeChecker
+        conn.sendall(response)
+        conn.close()
+        await uasyncio.sleep_ms(300)
+
+
+_loop = uasyncio.get_event_loop()
+
+_loop.create_task(web_runner())
+
+_loop.run_forever()
